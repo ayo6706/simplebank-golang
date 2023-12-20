@@ -22,3 +22,7 @@ UPDATE entries SET
   amount = $2
 WHERE id = $1
 RETURNING *;
+
+-- name: DeleteEntry :exec
+DELETE FROM entries
+WHERE id = $1;
