@@ -48,3 +48,31 @@ func TestGetTransfer(t *testing.T) {
 	require.Equal(t, transfer1.ToAccountID, transfer2.ToAccountID)
 	require.Equal(t, transfer1.Amount, transfer2.Amount)
 }
+
+func TestListTransfers(t *testing.T) {
+	account1 := CreateRandomAccount(t)
+	account2 := CreateRandomAccount(t)
+
+	for i := 0; i < 10; i++ {
+		CreateRandomTransfer(t, account1, account2)
+		CreateRandomTransfer(t, account2, account1)
+	}
+
+	arg := ListTransfersParams{
+		FromAccountID: account1.ID,
+		ToAccountID:   account1.ID,
+		Limit:         5,
+		Offset:        5,
+	}
+
+	transfers, err := testQueries.ListTransfers(context.Background(), arg)
+
+	require.NoError(t, err)
+	require.Len(t, transfers, 5)
+
+	for _, transfer := range transfers {
+		require.NotEmpty(t, transfer)
+		require.True(t, transfer.FromAccountID == account1.ID || transfer.ToAccountID == account1.ID)
+	}
+
+}
