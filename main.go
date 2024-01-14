@@ -8,6 +8,7 @@ import (
 
 	"github.com/ayo6706/simplebank/api"
 	db "github.com/ayo6706/simplebank/db/sqlc"
+	"github.com/ayo6706/simplebank/util"
 )
 
 const (
@@ -17,7 +18,11 @@ const (
 )
 
 func main() {
-	conn, err := sql.Open(dbDriver, dbSource)
+	config, err := util.LoadConfig(".")
+	if err != nil {
+		log.Fatal("cannot load config file", err)
+	}
+	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal("cannot connect to db", err)
 	}
