@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/ayo6706/simplebank/util"
 	"github.com/stretchr/testify/require"
@@ -10,6 +11,7 @@ import (
 
 func CreateRandomUser(t *testing.T) User {
 	arg := CreateUserParams{
+		Username:       util.RandomOwner(),
 		Email:          util.RandomEmail(),
 		FullName:       util.RandomOwner(),
 		HashedPassword: "secret",
@@ -31,4 +33,18 @@ func CreateRandomUser(t *testing.T) User {
 
 func TestCreateUser(t *testing.T) {
 	CreateRandomUser(t)
+}
+
+func TestGetUser(t *testing.T) {
+	user1 := CreateRandomUser(t)
+	user2, err := testQueries.GetUser(context.Background(), user1.Username)
+	require.NoError(t, err)
+	require.NotEmpty(t, user2)
+
+	require.Equal(t, user1.Username, user2.Username)
+	require.Equal(t, user1.Email, user2.Email)
+	require.Equal(t, user1.FullName, user2.FullName)
+	require.WithinDuration(t, user1.PasswordChangedAt, user2.PasswordChangedAt, time.Second)
+	require.WithinDuration(t, user1.CreatedAt, user2.CreatedAt, time.Second)
+
 }
