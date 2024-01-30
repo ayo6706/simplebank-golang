@@ -5,6 +5,7 @@ import (
 
 	db "github.com/ayo6706/simplebank/db/sqlc"
 	"github.com/ayo6706/simplebank/token"
+	"github.com/ayo6706/simplebank/util"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -12,18 +13,23 @@ import (
 
 // server serves http requests
 type Server struct {
+	config     util.Config
 	store      db.Store
 	tokenMaker token.Maker
 	router     *gin.Engine
 }
 
 // New  server creates  a new http server and setup routing
-func NewServer(store db.Store) *Server {
+func NewServer(config util.Config, store db.Store) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker("")
 	if err != nil {
-		return nil, fmt.Errorf("cannot crea")
+		return nil, fmt.Errorf("cannot create token maker: %w", err)
 	}
-	server := &Server{store: store}
+	server := &Server{
+		config:     config,
+		store:      store,
+		tokenMaker: tokenMaker,
+	}
 	router := gin.Default()
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
@@ -39,7 +45,7 @@ func NewServer(store db.Store) *Server {
 	router.POST("/users", server.createUser)
 
 	server.router = router
-	return server
+	return server, nil
 }
 
 func (server *Server) Start(address string) error {
