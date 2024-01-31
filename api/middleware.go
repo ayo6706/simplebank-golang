@@ -11,14 +11,14 @@ import (
 )
 
 const (
-	authorizationHeaderkey  = "authorization"
+	authorizationHeaderKey  = "authorization"
 	authorizationTypeBearer = "Bearer"
 	authorizationPayloadKey = "authorization_payload"
 )
 
 func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		authorizationHeader := ctx.GetHeader("Authorization")
+		authorizationHeader := ctx.GetHeader(authorizationHeaderKey)
 		if !strings.HasPrefix(authorizationHeader, "Bearer ") {
 			err := errors.New("authorization header must start with Bearer")
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
