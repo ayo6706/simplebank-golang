@@ -33,7 +33,6 @@ func (maker *JWTMaker) CreateToken(username string, duration time.Duration) (str
 
 // verifyToken checks if the token is valid or not
 func (maker *JWTMaker) VerifyToken(token string) (*Payload, error) {
-
 	KeyFunc := func(token *jwt.Token) (interface{}, error) {
 		// check if the signing method is valid
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
