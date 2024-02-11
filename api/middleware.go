@@ -12,21 +12,23 @@ import (
 
 const (
 	authorizationHeaderKey  = "authorization"
-	authorizationTypeBearer = "Bearer"
+	authorizationTypeBearer = "bearer"
 	authorizationPayloadKey = "authorization_payload"
 )
 
+// AuthMiddleware creates a gin middleware for authorization
 func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authorizationHeader := ctx.GetHeader(authorizationHeaderKey)
-		if !strings.HasPrefix(authorizationHeader, "Bearer ") {
-			err := errors.New("authorization header must start with Bearer")
+
+		if len(authorizationHeader) == 0 {
+			err := errors.New("authorization header is not provided")
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
 			return
 		}
 
 		fields := strings.Fields(authorizationHeader)
-		if len(fields) != 2 {
+		if len(fields) < 2 {
 			err := errors.New("invalid authorization header format")
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
 			return
@@ -45,6 +47,7 @@ func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
 			return
 		}
+
 		ctx.Set(authorizationPayloadKey, payload)
 		ctx.Next()
 	}
